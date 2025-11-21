@@ -1,0 +1,167 @@
+CREATE DATABASE IF NOT EXISTS ebookdb;
+
+USE ebookdb;
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+-- Table: user
+CREATE TABLE IF NOT EXISTS user (
+  user_id INT(20) NOT NULL AUTO_INCREMENT,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  phone_number VARCHAR(30) DEFAULT NULL,
+  reset_token VARCHAR(255) DEFAULT NULL,
+  token_expiry DATETIME DEFAULT NULL,
+  admin TINYINT(1) DEFAULT 0,
+  PRIMARY KEY (user_id)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Table: book_item
+CREATE TABLE IF NOT EXISTS book_item (
+  book_id INT(20) NOT NULL AUTO_INCREMENT,
+  book_name VARCHAR(255) NOT NULL,
+  book_desc VARCHAR(255) NOT NULL,
+  book_price DECIMAL(10,2) NOT NULL,
+  book_status ENUM('AVAILABLE', 'DISABLED') NOT NULL DEFAULT 'AVAILABLE',
+  book_category ENUM('Fiction', 'Non-Fiction', 'Science', 'Fantasy', 'Romance', 'History') NOT NULL DEFAULT 'Fiction',
+  book_photo VARCHAR(100) NULL,
+  pdf_path VARCHAR(255) NULL, 
+  PRIMARY KEY (book_id)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Table: book_ownership
+CREATE TABLE IF NOT EXISTS book_ownership (
+  ownership_id INT(20) NOT NULL AUTO_INCREMENT,
+  user_id INT(20) NOT NULL,
+  book_id INT(20) NOT NULL,
+  purchase_date DATE DEFAULT NULL,
+  purchase_time TIME DEFAULT NULL,
+  PRIMARY KEY (ownership_id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Table: cart
+CREATE TABLE IF NOT EXISTS cart (
+  cart_id INT(20) NOT NULL AUTO_INCREMENT,
+  user_id INT(20) NOT NULL,
+  paid TINYINT(1) DEFAULT 0,
+  total_price DECIMAL(10,2) DEFAULT NULL,
+  PRIMARY KEY (cart_id)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Table: cart_item
+CREATE TABLE IF NOT EXISTS cart_item (
+  cart_item_id INT(20) NOT NULL AUTO_INCREMENT,
+  cart_id INT(20) NOT NULL,
+  book_id INT(20) NOT NULL,
+  PRIMARY KEY (cart_item_id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Table: payment
+CREATE TABLE IF NOT EXISTS payment (
+  payment_id INT(20) NOT NULL AUTO_INCREMENT,
+  cart_id INT(20) DEFAULT NULL,
+  payment_date DATE DEFAULT NULL,
+  total_payment DECIMAL(10,2) DEFAULT NULL,
+  user_id INT(20) DEFAULT NULL,
+  PRIMARY KEY (payment_id)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Table: discount_code
+CREATE TABLE IF NOT EXISTS discount_code (
+    code_id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) NOT NULL,
+    discount_percentage DECIMAL(5, 2) NOT NULL,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active'
+);
+
+-- Table: wishlist
+CREATE TABLE IF NOT EXISTS wishlist (
+    wishlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    book_id INT NOT NULL
+);
+
+INSERT INTO `user` (`user_id`, `email`, `password`, `phone_number`, `reset_token`, `token_expiry`, `admin`) VALUES
+(1, 'boundlessbook@gmail.com', '$2y$10$lyjLM4Qru1z9W8qco6BBguF75HbzfI2/ZgMqQMYHecdzojhkdwnDq', '', NULL, NULL, 1),
+(2, 'userKevin@gmail.com', '$2y$10$wK096v/VE6nwYNURRYtum.AXMZ5mQKPD1rQ84FAuYCvUJc8r64tWW', '', NULL, NULL, 0);
+
+-- Insert Data: book_ownership
+INSERT INTO book_ownership (user_id, book_id, purchase_date, purchase_time) VALUES
+(1, 1, '2024-12-15', '01:38:42'),
+(1, 2, '2024-12-15', '01:40:11'),
+(2, 5, '2024-12-15', '01:40:11'),
+(3, 2, '2024-12-15', '01:40:11'),
+(4, 3, '2024-12-15', '17:31:31');
+
+-- Insert Data: cart
+INSERT INTO cart (cart_id, user_id, paid, total_price) VALUES
+(1, 1, 0, 54.97),
+(2, 2, 1, 19.99),
+(3, 3, 0, 24.99),
+(4, 4, 1, 14.99);
+
+-- Insert Data: cart_item
+INSERT INTO cart_item (cart_id, book_id) VALUES
+(1, 1),
+(1, 3),
+(1, 4),
+(3, 4),
+(4, 3);
+
+-- Insert Data: payment
+INSERT INTO payment (payment_id, cart_id, payment_date, total_payment, user_id) VALUES
+(1, 2, '2024-12-07', 19.99, 2),
+(2, 4, '2024-12-05', 14.99, 4),
+(3, 3, '2024-12-06', 44.97, 3),
+(4, 5, '2024-12-08', 24.99, 5);
+
+ALTER TABLE book_item
+MODIFY COLUMN book_category ENUM(
+    'Fiction', 
+    'Non-Fiction', 
+    'Science', 
+    'Fantasy', 
+    'Romance', 
+    'History', 
+    'Mystery', 
+    'Thriller', 
+    'Biography', 
+    'Self-Help', 
+    'Health & Wellness', 
+    'Art & Photography', 
+    'Business & Economics', 
+    'Cookbooks', 
+    'Travel', 
+    'Young Adult (YA)', 
+    'Poetry', 
+    'Philosophy', 
+    'Religion & Spirituality'
+);
+
+-- Insert Data: book_item
+INSERT INTO book_item (book_id, book_name, book_desc, book_price, book_category, book_status, book_photo, pdf_path) VALUES
+(1, 'Atomic Habits', 'Atomic Habits (James Clear)', 19.99, 'Self-Help', 'AVAILABLE', 'atomichabits.jpg', 'books/Atomic Habits (James Clear).pdf'),
+(2, 'Normal People', 'Normal People (Sally Rooney)', 14.99, 'Romance', 'AVAILABLE', 'normalpeople.jpg', 'books/Normal People (Sally Rooney).pdf'),
+(3, 'Orbital', 'Orbital (Samantha Harvey)', 16.99, 'Fiction', 'AVAILABLE', 'orbital.jpg', 'books/Orbital (Samantha Harvey).pdf'),
+(4, 'The Body Keeps the Score', 'The Body Keeps the Score Brain, Mind, and Body in the Healing of Trauma (Bessel van der Kolk MD)', 24.99, 'Self-Help', 'AVAILABLE', 'thebodykeepsthescore.jpg', 'books/The Body Keeps the Score Brain, Mind, and Body in the Healing of Trauma (Bessel van der Kolk MD).pdf'),
+(5, 'The Overthinking Cure', 'The Overthinking Cure How to Stay in the Present, Shake Negativity, and Stop Your Stress and Anxiety (Nick Trenton)', 18.99, 'Self-Help', 'AVAILABLE', 'theoverthinkingcure.jpg', 'books/The Overthinking Cure How to Stay in the Present, Shake Negativity, and Stop Your Stress and Anxiety (Nick Trenton).pdf'),
+(6, 'Animal Farm', 'Animal Farm (George Orwell)', 12.99, 'Fiction', 'DISABLED', 'animalfarm.png', 'books/Animal Farm (George Orwell).pdf'),
+(7, 'Conversations With Friends', 'Conversations With Friends (Sally Rooney)', 15.99, 'Biography', 'AVAILABLE', 'conversationswithfriends.jpg', 'books/Conversations With Friends (Sally Rooney).pdf'),
+(8, 'Everything I Know About Love', 'Everything I Know About Love (Dolly Alderton)', 17.99, 'Biography', 'AVAILABLE', 'everythingiknowaboutlove.jpg', 'books/Everything I Know About Love (Dolly Alderton).pdf'),
+(9, 'The Midnight Library', 'The Midnight Library (Matt Haig)', 20.99, 'Science', 'AVAILABLE', 'themidnightlibrary.jpg', 'books/The Midnight Library (Matt Haig).pdf'),
+(10, 'The Secret History', 'The Secret History (Donna Tartt)', 22.99, 'Thriller', 'DISABLED', 'thesecrethistory.jpg', 'books/The Secret History (Donna Tartt).pdf');
+
+-- Insert Data: wishlist
+INSERT INTO wishlist (user_id, book_id) VALUES
+(1, 8),
+(1, 9),
+(2, 6),
+(2, 3),
+(3, 9),
+(3, 8),
+(4, 6),
+(4, 5);
+
+COMMIT;
