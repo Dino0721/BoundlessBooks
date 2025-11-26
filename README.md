@@ -16,10 +16,11 @@ Web-based project
 # Steps 
 1. Open Xampp and start Apache and MySQL
 3. start the project in a local host port
-4. run the local host port link 
-5. Make sure there is no ebookdb in the database.
-6. Run the project
-7. DONE
+4. Run the command in terminal (php -S localhost:8000) --> if this unable to run then try 8880
+5. run the local host port link 
+6. Make sure there is no ebookdb in the database.
+7. Run the project
+8. DONE
 
 # Example Accounts
 ## Customer
